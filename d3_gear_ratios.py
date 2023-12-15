@@ -3,7 +3,7 @@ class PartNo:
         self.literal = literal
         self.val = int(literal)
         self.lpos = lpos
-        self.rpos = lpos + len(literal)
+        self.rpos = lpos + len(literal) - 1
         self.line_no = line_no
 
 
@@ -48,14 +48,14 @@ for line_no, line in enumerate(lines_cleared):
             part_number_found = PartNo(literal, offset + pos, line_no)
             part_numbers.append(part_number_found)
             # print(f"\tnew part: {new_part.val} at position {new_part.lpos} on line {new_part.line_no}")
-            offset = offset + len(literal) #- 1 #adjust position for each digit beyond the first one
+            offset = offset + len(literal)
 
 # determine valid part numbers:
 # any symbols in <line_no - 1, lpos - 1> to (line_no + 1, rpos + 1) rectangle?
 
 def verify_part(my_part : PartNo) -> bool:
     lines_to_check = [my_part.line_no - 1, my_part.line_no + 1, my_part.line_no]
-    pos_to_check = range(my_part.lpos - 1, my_part.rpos + 1)
+    pos_to_check = range(my_part.lpos - 1, my_part.rpos + 2)
     for line in lines_to_check:
         for pos in pos_to_check:
             if lines_padded[line][pos] in symbols:
@@ -88,17 +88,21 @@ for line_no, line in enumerate(lines_padded):
     for pos in range(xmax):
         if line[pos] == '*':
             stars.append((line_no, pos))
+            star = (line_no, pos)
 
 gear_sets = []
 for star in stars:
-    gear_set = [part_no for part_no in valid_part_numbers if check_part_adjacency(part_no, star[0], star[1])]
-    if len(gear_set) == 2:
-        gear_sets.append(gear_set)
+    line_no = star[0]
+    pos = star[1]
+    gear = [part_no for part_no in valid_part_numbers if check_part_adjacency(part_no, line_no, pos)]
+    #gear = list(filter(check_part_adjacency, valid_part_numbers))
+    if len(gear) == 2:
+        gear_sets.append(gear)
 
 ratios_sum = 0
-for gear_set in gear_sets:
+for gear in gear_sets:
     ratio = 1
-    for part_no in gear_set:
+    for part_no in gear:
         ratio *= part_no.val
     ratios_sum += ratio
 
