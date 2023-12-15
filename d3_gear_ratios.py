@@ -23,11 +23,6 @@ for line in lines_vertically_padded:
     lines_padded.append('.' + line + '.')
 
 xmax += 2
-"""
-with open("input_padded.txt", 'w') as output_file:
-    for line in lines_padded:
-        output_file.write(line + '\n')
-"""
 
 # determine a set of all symbols
 symbols_l = filter(lambda x: x!='.' and not x.isdigit(), input_)
@@ -72,13 +67,14 @@ for part_no in valid_part_numbers:
 
 print("total: " + str(total))
 
-def check_part_adjacency(my_part : PartNo, adj_line_no : int, adj_pos : int) -> bool:
-    if (my_part.lpos - 1 <= adj_pos             # to the right of the left edge
-        and my_part.rpos + 1 >= adj_pos         # to the left of the right edge
-        and my_part.line_no - 1 <= adj_line_no  # below top edge
-        and my_part.line_no + 1 >= adj_line_no  # above bottom edge
-        ): return True
-    else: return False
+def find_adjacent_parts(parts : list[PartNo], adj_line_no : int, adj_pos : int):
+    for my_part in parts:
+        if (my_part.lpos - 1 <= adj_pos             # to the right of the left edge
+            and my_part.rpos + 1 >= adj_pos         # to the left of the right edge
+            and my_part.line_no - 1 <= adj_line_no  # below top edge
+            and my_part.line_no + 1 >= adj_line_no  # above bottom edge
+            ): yield my_part
+
 
 total_gear_ratio = 0
 
@@ -90,12 +86,11 @@ for line_no, line in enumerate(lines_padded):
             stars.append((line_no, pos))
             star = (line_no, pos)
 
-gear_sets = []
+gear_sets : list[PartNo] = []
 for star in stars:
     line_no = star[0]
     pos = star[1]
-    gear = [part_no for part_no in valid_part_numbers if check_part_adjacency(part_no, line_no, pos)]
-    #gear = list(filter(check_part_adjacency, valid_part_numbers))
+    gear = list(find_adjacent_parts(valid_part_numbers, line_no, pos))
     if len(gear) == 2:
         gear_sets.append(gear)
 
@@ -107,6 +102,3 @@ for gear in gear_sets:
     ratios_sum += ratio
 
 print(ratios_sum)
-
-
-
