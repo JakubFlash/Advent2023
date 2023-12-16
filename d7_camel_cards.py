@@ -9,16 +9,72 @@ HAND_GROUPS = [
     ]
 
 def group_hands(hands: list[tuple[str, int]]) -> dict[str : list[tuple[str, int]]]:
+    
     hands_grouped = {group : [] for group in HAND_GROUPS}
-    group_cardinalities = { # groups which can identified with cardinality alone
+
+    # groups which can identified with cardinality alone
+    five_card_group_cardinalities = { 
+        # cases 3 and 2 require further breakdown
         5 : "high_cards",
         4 : "pairs",
-        1 : "fives"  
+        1 : "fives"
+    }
+
+    four_card_group_cardinalities = { # case for 1 joker
+        # case 2 requires further breakdown
+        4 : "pairs",
+        3 : "threes",
+        1 : "fives"
+    }
+
+    three_card_group_cardinalities = { # case for 2 jokers
+        3 : "threes",
+        2 : "quads",
+        1 : "fives"
+    }
+
+    two_card_group_cardinalities = { # case for 3 jokers
+        2 : "quads",
+        1 : "fives"
     }
 
     for hand in hands:
-        cardinality = len(set(hand[0]))
+        # adjust for jokers
+        hand_joker_adjusted = hand[0]
+        hand_joker_adjusted = hand_joker_adjusted.replace('J', '')
+        cardinality = len(set(hand_joker_adjusted))
 
+        # resolve all hands containing jokers
+        if len(hand_joker_adjusted) == 4:
+            if cardinality != 2:
+                group = four_card_group_cardinalities[cardinality]
+                hands_grouped[group].append(hand)
+                continue
+            else:
+                hand_sorted = "".join(sorted(hand_joker_adjusted))
+                if hand_sorted[1] == hand_sorted[2]:
+                    group = "quads"
+                else:
+                    group = "fulls"
+                hands_grouped[group].append(hand)
+                continue
+
+        if len(hand_joker_adjusted) == 3:
+            group = three_card_group_cardinalities[cardinality]
+            hands_grouped[group].append(hand)
+            continue
+
+        if len(hand_joker_adjusted) == 2:
+            group = two_card_group_cardinalities[cardinality]
+            hands_grouped[group].append(hand)
+            continue
+
+        if len(hand_joker_adjusted) < 2:
+            group = "fives"
+            hands_grouped[group].append(hand)
+            continue
+
+        # further logic for joker-free hands
         if cardinality == 2: # resolve between quads and fulls
             duplicate_counter = 0
             for i in range(1,5):
@@ -43,7 +99,7 @@ def group_hands(hands: list[tuple[str, int]]) -> dict[str : list[tuple[str, int]
                 group = "two_pairs"
 
         else:
-            group = group_cardinalities[cardinality] # generic resolution
+            group = five_card_group_cardinalities[cardinality]
             
         hands_grouped[group].append(hand)
     
@@ -57,7 +113,7 @@ def sort_group(hands: list[tuple[str, int]]) -> list:
             case "T":
                 return 10
             case "J":
-                return 11
+                return 1 #part 1: return 11
             case "Q":
                 return 12
             case "K":
