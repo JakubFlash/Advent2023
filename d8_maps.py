@@ -1,4 +1,6 @@
 
+from math import lcm
+
 with open("input.txt") as input_file:
     input_ = input_file.read() 
 
@@ -32,29 +34,29 @@ print(command_ctr)
 all_pos = maps.keys()
 group_pos = list(filter(lambda x: x[2] == 'A', all_pos))
 
-def verify_completion(positions : list[str]) -> bool:
+def verify_group_completion(positions : list[str]) -> bool:
     for pos in positions:
         if pos[2] != 'Z':
             return False
         
     return True
 
-command_ctr = 0
-while(True):
-    next_pos = []
-    command = instruction[command_ctr % i_len]
-    command_ctr += 1
+lengths = []
+for pos in group_pos:
+    command_ctr = 0
+    while(True):
+        command = instruction[command_ctr % i_len]
+        command_ctr += 1
 
-    if command == "L":
-        next_pos = [maps[sub_pos][0] for sub_pos in group_pos]
+        if command == 'L':
+            pos = maps[pos][0]
+        elif command == 'R':
+            pos = maps[pos][1]
 
-    elif command == "R":
-        next_pos = [maps[sub_pos][1] for sub_pos in group_pos]
-
-    if(verify_completion(next_pos)):
-        break
-
-    group_pos = next_pos
+        if pos[2] == 'Z':
+            break
+        
     print(command_ctr)
+    lengths.append(command_ctr)
 
-print(command_ctr)
+print(f"lengths: {lengths}; lcm: {lcm(*lengths)}")
