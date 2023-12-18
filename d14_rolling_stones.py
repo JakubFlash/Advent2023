@@ -1,19 +1,3 @@
-"""def summarize_load(layout : list[str]) -> int:
-    total_load = 0
-    modifier = len(layout)
-    for line in layout:
-        local_load = line.count('O') * modifier
-        
-        total_load += local_load
-        modifier -= 1
-
-    return total_load
-        
-def tilt_north(layout : list[str]) -> list[str]:
-    resulting_layout = []
-    # start the count at the beginning or at #
-    # count Os column-wise
-    # stop the count at #"""
 
 def tilt_n_summarize_load(layout : list[str]) -> int:
     
